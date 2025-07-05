@@ -29,13 +29,13 @@ def get_pdf_text(pdf_docs):
                 text += content
     return text
 
-# 2. Split text into manageable chunks
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=2000,
+        chunk_size=1000,
         chunk_overlap=200
     )
     return text_splitter.split_text(text)
+
 
 # 3. Convert text chunks into embeddings and store in FAISS
 def get_vector_store(text_chunks):
