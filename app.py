@@ -6,7 +6,8 @@ import os
 import google.generativeai as genai
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores.faiss import FAISS
+
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 
@@ -61,8 +62,12 @@ def get_conversational_chain():
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
 # 5. Handle user query
+
 def user_input(user_question):
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
+    if not os.path.exists("faiss_index/index.faiss") or not os.path.exists("faiss_index/index.pkl"):
+        st.warning("⚠️ Please upload and process PDFs first to build the knowledge base.")
+        return
     vector_store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = vector_store.similarity_search(user_question)
     chain = get_conversational_chain()
@@ -71,6 +76,9 @@ def user_input(user_question):
         return_only_outputs=True
     )
     st.write("📣 **Reply:**", response["output_text"])
+
+
+    
 
 # 6. Streamlit UI
 def main():
